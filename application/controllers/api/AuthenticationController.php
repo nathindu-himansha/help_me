@@ -3,6 +3,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
 require_once("application/entities/User.php");
 require_once("application/libraries/RestControllerLibrary.php");
 
+Header('Access-Control-Allow-Origin: *'); //for allow any domain, insecure
+Header('Access-Control-Allow-Headers: *'); //for allow any headers, insecure
+Header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
+
+
+
 use dto\Response;
 use entities\User;
 use Libraries\RestControllerLibrary as RestController;
@@ -13,12 +19,13 @@ class AuthenticationController extends RestController
 	public function index()
 	{
 		parent::__construct();
+		$this->load->view('user_profile');
 	}
 
 	// API for the user registration
 	public function user_register_post()
 	{
-		log_message(INFO_STATUS, "AuthenticationController - user_register_post(): function called ");
+		log_message(INFO_STATUS, "AuthenticationControllerLibrary - user_register_post(): function called ");
 
 		try {
 			// catching the received data
@@ -52,7 +59,7 @@ class AuthenticationController extends RestController
 			}
 
 		} catch (Exception $exception) {
-			log_message(ERROR_STATUS, "AuthenticationController - user_register_post(): " . $exception->getMessage());
+			log_message(ERROR_STATUS, "AuthenticationControllerLibrary - user_register_post(): " . $exception->getMessage());
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -60,7 +67,7 @@ class AuthenticationController extends RestController
 
 	public function user_login_post()
 	{
-		log_message(INFO_STATUS, "AuthenticationController - user_login_post(): function called ");
+		log_message(INFO_STATUS, "AuthenticationControllerLibrary - user_login_post(): function called ");
 		try {
 			// catching the received data
 			$email = $this->input->post('email');
@@ -89,7 +96,7 @@ class AuthenticationController extends RestController
 			}
 
 		} catch (Throwable $exception) {
-			log_message(ERROR_STATUS, "AuthenticationController - user_login_post(): " . $exception->getMessage());
+			log_message(ERROR_STATUS, "AuthenticationControllerLibrary - user_login_post(): " . $exception->getMessage());
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -97,7 +104,7 @@ class AuthenticationController extends RestController
 
 	public function user_logout_post()
 	{
-		log_message(INFO_STATUS, "AuthenticationController - user_logout_post(): function called ");
+		log_message(INFO_STATUS, "AuthenticationControllerLibrary - user_logout_post(): function called ");
 		try {
 
 			$headerToken = $this->input->get_request_header('Authorization');
@@ -125,14 +132,14 @@ class AuthenticationController extends RestController
 			}
 
 		} catch (Throwable $exception) {
-			log_message(ERROR_STATUS, "AuthenticationController - user_logout_post(): " . $exception->getMessage());
+			log_message(ERROR_STATUS, "AuthenticationControllerLibrary - user_logout_post(): " . $exception->getMessage());
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	public function validate_user_token_post()
 	{
-		log_message(INFO_STATUS, "AuthenticationController - validate_user_token_post(): function called ");
+		log_message(INFO_STATUS, "AuthenticationControllerLibrary - validate_user_token_post(): function called ");
 		try {
 
 			// catching the entered token
@@ -152,7 +159,7 @@ class AuthenticationController extends RestController
 			}
 
 		} catch (Throwable $exception) {
-			log_message(ERROR_STATUS, "AuthenticationController - validate_user_token_post: " . $exception->getMessage());
+			log_message(ERROR_STATUS, "AuthenticationControllerLibrary - validate_user_token_post: " . $exception->getMessage());
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}

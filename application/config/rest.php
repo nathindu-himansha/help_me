@@ -40,7 +40,7 @@ $config['rest_default_format'] = 'json';
 | You may remove those formats that you don't want to use.
 | If the default format $config['rest_default_format'] is missing within
 | $config['rest_supported_formats'], it will be added silently during
-| REST_Controller initialization.
+| Rest_ControllerLibrary initialization.
 |
 */
 $config['rest_supported_formats'] = [

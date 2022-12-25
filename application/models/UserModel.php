@@ -213,7 +213,7 @@ class UserModel extends CI_Model
 					$retrievedQuestionsList = $this->QuestionModel->getQuestionsByUserId($userId)->getData();
 
 					$userProfileData = new UserProfileData($retrievedUser->row()->id, $retrievedUser->row()->first_name,
-						$retrievedUser->row()->email, $retrievedAnswersList, $retrievedQuestionsList);
+						$retrievedUser->row()->email,$retrievedQuestionsList, $retrievedAnswersList);
 
 					return new Response(SUCCESS_STATUS, "USER PROFILE DETAILS FOUND SUCCESSFULLY",
 						$userProfileData->toString());

@@ -330,7 +330,7 @@ abstract class RestControllerLibrary extends CI_Controller {
      *
      * @var bool
      */
-    protected $check_cors = NULL;
+    protected $check_cors = FALSE;
 
     /**
      * Enable XSS flag
@@ -973,8 +973,8 @@ abstract class RestControllerLibrary extends CI_Controller {
      * @access protected
      * @return string|NULL Supported request method as a lowercase string; otherwise, NULL if not supported
      */
-    protected function _detect_method()
-    {
+    protected function _detect_method(): ?string
+	{
         // Declare a variable to store the method
         $method = NULL;
 
