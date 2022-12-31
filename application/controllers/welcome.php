@@ -15,6 +15,6 @@ class Welcome extends CI_Controller
 	public function index()
 	{
 		parent::__construct();
-		$this->load->view('user_profile');
+		$this->load->view('login');
 	}
 }

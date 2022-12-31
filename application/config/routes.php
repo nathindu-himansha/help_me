@@ -70,5 +70,7 @@ $route['api/answer/question'] = 'api/QuestionManagingController/answer_question'
 $route['api/get/trending_question'] = 'api/QuestionManagingController/trending_question'; // GET
 $route['api/question/vote'] = 'api/QuestionManagingController/vote_question'; // POST
 
-// USER
+// user
 $route['api/user'] = 'api/UserManagementController/retrieve_user_profile'; // GET
+$route['api/user/update'] = 'api/UserManagementController/update_user_details'; // post
+

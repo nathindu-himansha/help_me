@@ -6,15 +6,17 @@ class UserProfileData
 
 	private int $id;
 	private string $firstName;
+	private string $lastName;
 	private string $email;
 	private array $questions;
 	private array $answers;
 
 
-	public function __construct(int $id, string $firstName, string $email, array $questions, array $answers)
+	public function __construct(int $id, string $firstName,string $lastName, string $email, array $questions, array $answers)
 	{
 		$this->id = $id;
 		$this->firstName = $firstName;
+		$this->lastName = $lastName;
 		$this->email = $email;
 		$this->questions = $questions;
 		$this->answers = $answers;
@@ -28,6 +30,16 @@ class UserProfileData
 	public function setId(int $id): void
 	{
 		$this->id = $id;
+	}
+
+	public function getLastName(): string
+	{
+		return $this->lastName;
+	}
+
+	public function setLastName(string $lastName): void
+	{
+		$this->lastName = $lastName;
 	}
 
 	public function getFirstName(): string
@@ -72,8 +84,8 @@ class UserProfileData
 
 	public function toString(): array
 	{
-		return array("id" => $this->getId(), "firstName" => $this->getFirstName(), "email" => $this->getEmail(),
-			"questions" => $this->getQuestions(), "answers" => $this->getAnswers());
+		return array("id" => $this->getId(), "firstName" => $this->getFirstName(),"lastName" => $this->getLastName(),
+			"email" => $this->getEmail(), "questions" => $this->getQuestions(), "answers" => $this->getAnswers());
 
 	}
 }

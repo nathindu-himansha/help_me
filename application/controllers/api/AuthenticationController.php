@@ -29,19 +29,25 @@ class AuthenticationController extends RestController
 
 		try {
 			// catching the received data
-			$firstName = $this->input->post('firstName');
-			$lastName = $this->input->post('lastName');
-			$email = $this->input->post('email');
-			$password = $this->input->post('password');
+			$jsonArray = json_decode(file_get_contents('php://input'),true);
+			$firstName = $jsonArray['firstName'];
+			$lastName = $jsonArray['lastName'];
+			$email =$jsonArray['email'];
+			$password = $jsonArray['password'];
+
+//			$firstName = $this->input->post('firstName');
+//			$lastName = $this->input->post('lastName');
+//			$email = $this->input->post('email');
+//			$password = $this->input->post('password');
 
 			// validation rules for required fields
-			$this->form_validation->set_rules('firstName', 'First Name', 'required');
-			$this->form_validation->set_rules('lastName', 'Last Name', 'required');
-			$this->form_validation->set_rules('email', 'Email', 'required');
-			$this->form_validation->set_rules('password', 'Password', 'required');
+//			$this->form_validation->set_rules('firstName', 'First Name', 'required');
+//			$this->form_validation->set_rules('lastName', 'Last Name', 'required');
+//			$this->form_validation->set_rules('email', 'Email', 'required');
+//			$this->form_validation->set_rules('password', 'Password', 'required');
 
 			// validating required fields and passing into users model
-			if ($this->form_validation->run()) {
+			if(!($firstName=="" or $lastName=="" or $email=="" or $password=="")) {
 
 				/**
 				 * @var Response $response
@@ -70,15 +76,19 @@ class AuthenticationController extends RestController
 		log_message(INFO_STATUS, "AuthenticationControllerLibrary - user_login_post(): function called ");
 		try {
 			// catching the received data
-			$email = $this->input->post('email');
-			$password = $this->input->post('password');
 
-			// validation rules for required fields
-			$this->form_validation->set_rules('email', 'Email', 'required');
-			$this->form_validation->set_rules('password', 'Password', 'required');
+
+			//capturing the request body data
+			$jsonArray = json_decode(file_get_contents('php://input'),true);
+			$email =$jsonArray['email'];
+			$password = $jsonArray['password'];
+
+//			// validation rules for required fields
+//			$this->form_validation->set_rules('email', 'Email', 'required');
+//			$this->form_validation->set_rules('password', 'Password', 'required');
 
 			// validating required fields and passing into users model
-			if ($this->form_validation->run()) {
+			if(!($email=="" or $password=="")) {
 
 				/**
 				 * @var Response $response

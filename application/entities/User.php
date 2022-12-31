@@ -4,6 +4,13 @@
 namespace entities;
 class User
 {
+	/**
+	 * @var int
+	 *
+	 * @ORM\Column(name="id", type="integer")
+	 * @ORM\Id
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
 	private int $id;
 	private string $firstName;
 	private string $lastName;
@@ -78,7 +85,7 @@ class User
 
 	public function toString(): array
 	{
-		return array("email" => $this->getEmail(), "password" => $this->getPassword());
+		return array("firstName"=>$this->getFirstName(),"lastName"=>$this->getLastName(),"email" => $this->getEmail(), "password" => $this->getPassword());
 	}
 
 }

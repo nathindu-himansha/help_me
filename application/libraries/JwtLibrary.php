@@ -11,7 +11,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class JwtLibrary
 {
 	const JWT_SECRET_KEY = "AsswdCwHelpMeSecret";
-	const JWT_TOKEN_VALIDITY = 60 * 60;
+	const JWT_TOKEN_VALIDITY = 60; // todo reduce this time at the end
 	const JWT_ALGORITHM_TYPE = "HS256";
 
 	/**
@@ -68,8 +68,8 @@ class JwtLibrary
 			$is_signature_valid = ($encodedSignature == $tokenSignature);
 
 			log_message('info', "jwtLibrary - validateJsonToken(): token status user:"
-				. json_decode($tokenPayload)->user->id . " expired: " . ($is_token_expired?"true":"false") . " valid: "
-				. ($is_signature_valid?"true":"false"));
+				. json_decode($tokenPayload)->user->id . " expired: " . ($is_token_expired ? "true" : "false") . " valid: "
+				. ($is_signature_valid ? "true" : "false"));
 			if (!$is_token_expired && $is_signature_valid) {
 				return true;
 			} else {
@@ -109,7 +109,7 @@ class JwtLibrary
 	{
 		log_message('info', "jwtLibrary - createEncodedTokenSignature(): function called ");
 
-		$tokenSignature = hash_hmac('SHA256', $encodedHeaders. "." .$encodedPayload, self::JWT_SECRET_KEY, true);
+		$tokenSignature = hash_hmac('SHA256', $encodedHeaders . "." . $encodedPayload, self::JWT_SECRET_KEY, true);
 		return $this->encodeToBase64Url($tokenSignature);
 	}
 

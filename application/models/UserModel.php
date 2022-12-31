@@ -213,7 +213,7 @@ class UserModel extends CI_Model
 					$retrievedQuestionsList = $this->QuestionModel->getQuestionsByUserId($userId)->getData();
 
 					$userProfileData = new UserProfileData($retrievedUser->row()->id, $retrievedUser->row()->first_name,
-						$retrievedUser->row()->email,$retrievedQuestionsList, $retrievedAnswersList);
+						$retrievedUser->row()->last_name,$retrievedUser->row()->email, $retrievedQuestionsList, $retrievedAnswersList);
 
 					return new Response(SUCCESS_STATUS, "USER PROFILE DETAILS FOUND SUCCESSFULLY",
 						$userProfileData->toString());
@@ -228,6 +228,54 @@ class UserModel extends CI_Model
 
 		} catch (Throwable $exception) {
 			log_message(ERROR_STATUS, "UserModel - loginUser() getUserProfileById: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "USER PROFILE RETRIEVAL UNSUCCESSFUL : EXCEPTION - "
+				. $exception->getMessage(), null);
+		}
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	// function to retrieve user data with submitted questions and answers
+	public function updateUserDetails(string $headerToken, User $user): Response
+	{
+		try {
+			log_message(INFO_STATUS, "UserModel - updateUserDetails(): function called ");
+
+			// retrieving the user from the token
+			$this->load->model('UserTokenModel');
+			$userInToken = $this->UserTokenModel->getUserByTokenPayload($headerToken);
+			$userId = $userInToken->getId();
+
+			if (!$userId == "") {
+				$retrievedUser = $this->getUserByIdFromUserTable($userId);
+				if ($retrievedUser->num_rows() == 1) {
+
+					// updates the existing record
+					$data = ['first_name' => $user->getFirstName(), 'last_name' => $user->getLastName(),
+						'email' => $user->getEmail()];
+					$this->db->where('id', $retrievedUser->row()->id);
+					$this->db->update('user', $data);
+
+					$retrievedUserAfterUpdate = $this->getUserByIdFromUserTable($userId);
+					$userProfileData = new User($retrievedUserAfterUpdate->row()->first_name, $retrievedUserAfterUpdate->row()->last_name,
+						$retrievedUserAfterUpdate->row()->email,"");
+
+					return new Response(SUCCESS_STATUS, "USER DETAILS UPDATED SUCCESSFULLY",
+						$userProfileData->toString());
+
+
+				} else {
+					return new Response(ERROR_STATUS, "USER NOT FOUND", null);
+				}
+
+			} else {
+				return new Response(ERROR_STATUS, "USER ID NOT FOUND IN TOKEN", null);
+			}
+
+
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "UserModel - updateUserDetails() getUserProfileById: " . $exception->getMessage());
 			return new Response(ERROR_STATUS, "USER PROFILE RETRIEVAL UNSUCCESSFUL : EXCEPTION - "
 				. $exception->getMessage(), null);
 		}
