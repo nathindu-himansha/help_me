@@ -3,9 +3,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 require_once("application/entities/Question.php");
 require_once("application/dto/Response.php");
+require_once("application/dto/QuestionData.php");
+require_once("application/dto/AnswerData.php");
 
 use entities\Question;
 use dto\Response;
+use dto\QuestionData;
+use dto\AnswerData;
 
 
 class QuestionModel extends CI_Model
@@ -23,7 +27,7 @@ class QuestionModel extends CI_Model
 	 * @throws Exception
 	 */
 	// function for create question, insert into table and create question tag mappings
-	public function createQuestion(string $headerToken, string $title, string $question, array $tags): Response
+	public function createQuestion(string $headerToken, string $title, string $question, string $tags): Response
 	{
 		try {
 			log_message(INFO_STATUS, "QuestionModel - createQuestion(): function called ");
@@ -42,17 +46,34 @@ class QuestionModel extends CI_Model
 
 			// retrieving the insert question for further use
 			$question_id = $this->db->insert_id();
-			$question = $this->getQuestionById(intval($question_id))->getData()[0];
+			$question = $this->getQuestionDataById(intval($question_id))->getData()[0];
 
+			//
+			$entered_tags = explode(',', $tags);
+
+//			log_message(INFO_STATUS, "QuestionModel -1:".$entered_tags);
 			// inserting data into question tag mapping table
 			$tagList = array();
-			foreach ($tags as $tagId) {
+			foreach ($entered_tags as $tagName) {
+				log_message(INFO_STATUS, "2:" . $tagName);
 
 				// retrieving the tag from the id from database for fk mapping
 				$this->load->model('TagModel');
-				$retrievedTag = $this->TagModel->getTagById(intval($tagId));
-				$tagList[] = $retrievedTag->toString();
 
+//				log_message(INFO_STATUS, "3:");
+				if (!($this->TagModel->checkTagIsExists($tagName))) {
+					log_message(INFO_STATUS, "4:" . $tagName);
+					log_message(INFO_STATUS, "A32222:");
+					$retrievedTag = $this->TagModel->createTag($tagName)->getData()[0];
+					log_message(INFO_STATUS, "444:" . $tagName);
+				} else {
+					log_message(INFO_STATUS, "B32222:");
+					$retrievedTag = $this->TagModel->getTagByName($tagName);
+				}
+				$tagList[] = $retrievedTag->toString();
+//				log_message(INFO_STATUS, "2132332222:".print_r($retrievedTag));
+
+				log_message(INFO_STATUS, "32222:");
 				// inserting data into table with rag and question references
 				$questionTagMappingData = array("fk_question_id" => $question_id, "fk_tag_id" => $retrievedTag->getId());
 				$this->db->insert('question_tag_mapping', $questionTagMappingData);
@@ -73,18 +94,218 @@ class QuestionModel extends CI_Model
 	/**
 	 * @throws Exception
 	 */
-	// function for retrieve questions by id
-	public function getQuestionById(int $questionId): Response
+	// function for update question
+	public function updateQuestion(string $headerToken, int $questionId, string $updatedTitle, string $updatedQuestion, string $updatedTags): Response
+	{
+		try {
+			log_message(INFO_STATUS, "QuestionModel - updateQuestion(): function called ");
+
+			// retrieving the user from the token
+			$this->load->model('UserTokenModel');
+			$userInToken = $this->UserTokenModel->getUserByTokenPayload($headerToken);
+
+			// marking as transaction query to avoid error inserts (if some db query failed other will not save)
+			$this->db->trans_start();
+
+			$question = $this->getQuestionById($questionId)->getData()[0];
+			if ($question) {
+				if ($question['user'] == $userInToken->getId()) {
+
+					// updates the existing record (question)
+					$data = ['question_title' => $updatedTitle, 'question' => $updatedQuestion];
+					$this->db->where('id', $questionId);
+					$this->db->update('user_question', $data);
+
+					//tags updating
+					$this->load->model('TagModel');
+					$this->load->model('QuestionTagMappingModel');
+
+					$questionTagMappings = $this->QuestionTagMappingModel->getQuestionTagMappings($questionId)->getData();
+					foreach ($questionTagMappings as $questionTagMapping) {
+
+						// deleting existing tags
+						$this->db->where('id', $questionTagMapping->getId());
+						$this->db->delete('question_tag_mapping');
+					}
+
+					// inserting tags
+					$entered_updated_tags = explode(',', $updatedTags);
+					foreach ($entered_updated_tags as $tagName) {
+						if (!($this->TagModel->checkTagIsExists($tagName))) {
+							$retrievedTag = $this->TagModel->createTag($tagName)->getData()[0];
+						} else {
+							$retrievedTag = $this->TagModel->getTagByName($tagName);
+						}
+
+						// inserting data into table with rag and question references
+						$questionTagMappingData = array("fk_question_id" => $questionId, "fk_tag_id" => $retrievedTag->getId());
+						$this->db->insert('question_tag_mapping', $questionTagMappingData);
+					}
+
+					$this->db->trans_complete();
+					return new Response(SUCCESS_STATUS, "QUESTION INSERTED SUCCESSFULLY",
+						array("question" => $question, "tags" => $entered_updated_tags));
+
+				} else {
+					return new Response(ERROR_STATUS, "NOT ALLOWED TO UPDATE", null);
+				}
+			} else {
+				return new Response(ERROR_STATUS, "QUESTION NOT EXISTS", null);
+			}
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "QuestionModel - updateQuestion() Exception: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "QUESTION UPDATE UNSUCCESSFUL : EXCEPTION - " . $exception->getMessage(), null);
+		}
+	}
+
+
+
+
+
+
+	/**
+	 * @throws Exception
+	 */
+	// function for delete question
+	public function deleteQuestion(string $headerToken, int $questionId): Response
+	{
+		try {
+			log_message(INFO_STATUS, "QuestionModel - deleteQuestion(): function called ");
+
+			// retrieving the user from the token
+			$this->load->model('UserTokenModel');
+			$userInToken = $this->UserTokenModel->getUserByTokenPayload($headerToken);
+
+			$question = $this->getQuestionById($questionId)->getData()[0];
+			if ($question) {
+				if ($question['user'] == $userInToken->getId()) {
+
+					// deleting answers related to question
+					$this->db->where('fk_user_question_id', $questionId);
+					$this->db->delete('user_answer');
+
+					// deletes tag mappings
+					$this->load->model('QuestionTagMappingModel');
+					$questionTagMappings = $this->QuestionTagMappingModel->getQuestionTagMappings($questionId)->getData();
+					foreach ($questionTagMappings as $questionTagMapping) {
+
+						// deleting existing tags
+						$this->db->where('id', $questionTagMapping->getId());
+						$this->db->delete('question_tag_mapping');
+					}
+
+					// deleting question
+					$this->db->where('id', $questionId);
+					$this->db->delete('user_question');
+
+					return new Response(SUCCESS_STATUS, "QUESTION DELETED SUCCESSFUL", null);
+				} else {
+					return new Response(ERROR_STATUS, "NOT ALLOWED TO DELETE QUESTION", null);
+				}
+			} else {
+				return new Response(ERROR_STATUS, "QUESTION NOT EXISTS", null);
+			}
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "QuestionModel - deleteQuestion() Exception: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "QUESTION DELETE UNSUCCESSFUL : EXCEPTION - " . $exception->getMessage(), null);
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * @throws Exception
+	 */
+// function for retrieve questions by id
+	public
+	function getQuestionById(int $questionId): Response
 	{
 		try {
 			log_message(INFO_STATUS, "QuestionModel - getQuestionById(): function called ");
 
 			$this->db->where('id', $questionId);
 			$retrievedQuestion = $this->db->get('user_question');
+
 			$question = new Question($retrievedQuestion->row()->id, $retrievedQuestion->row()->question_title,
-				$retrievedQuestion->row()->question, $retrievedQuestion->row()->votes, $retrievedQuestion->row()->fk_user_id);
+				$retrievedQuestion->row()->question, $retrievedQuestion->row()->votes,
+				$retrievedQuestion->row()->fk_user_id, $retrievedQuestion->row()->timestamp);
+
 
 			return new Response(SUCCESS_STATUS, "QUESTION RETRIEVED SUCCESSFULLY", array($question->toString()));
+
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "QuestionModel - getQuestionById() Exception: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "QUESTION RETRIEVED UNSUCCESSFUL : EXCEPTION - "
+				. $exception->getMessage(), null);
+		}
+	}
+
+
+	/**
+	 * @throws Exception
+	 */
+// function for retrieve questions by id
+	public function getQuestionDataById(int $questionId): Response
+	{
+		try {
+			log_message(INFO_STATUS, "QuestionModel - getQuestionById(): function called ");
+
+			$this->db->where('id', $questionId);
+			$retrievedQuestion = $this->db->get('user_question');
+			log_message(INFO_STATUS, "1111111111111111111111::::" . $questionId);
+
+			$this->load->model('UserModel');
+			$questionUser = $this->UserModel->getUserByIdFromUserTable($retrievedQuestion->row()->fk_user_id);
+			log_message(INFO_STATUS, "2222222222222222222222222222222222222:::" . strval($retrievedQuestion->row()->fk_user_id));
+
+			$question = new QuestionData($retrievedQuestion->row()->id, $retrievedQuestion->row()->question_title,
+				$retrievedQuestion->row()->question, $retrievedQuestion->row()->votes,
+				$questionUser->row()->first_name, $retrievedQuestion->row()->timestamp);
+
+			$answersDataList = array();
+			$tagQuestionMappings = array();
+			$tagList = array();
+			if ($question->getId() != null) {
+
+				// answers
+				$this->load->model('AnswerModel');
+				$answersList = $this->AnswerModel->getAnswersByQuestionId($question->getId())->getData();
+
+
+				foreach ($answersList as $answer) {
+
+					$answeredUser = $this->UserModel->getUserByIdFromUserTable($answer->fk_user_id);
+					$answersData = new AnswerData($answer->id, $answer->answer, $answer->fk_user_question_id, $answer->fk_user_id,
+						$answeredUser->row()->first_name, $answer->timestamp);
+					$answersDataList[] = $answersData->toString();
+
+				}
+
+				//tags
+				$this->load->model('QuestionTagMappingModel');
+				$tagQuestionMappings = $this->QuestionTagMappingModel->getQuestionTagMappings($question->getId())->getData();
+
+
+				$this->load->model('TagModel');
+				foreach ($tagQuestionMappings as $tagMapping) {
+					$tagList[] = $this->TagModel->getTagById($tagMapping->getFkTagId())->toString();
+				}
+
+			}
+
+			return new Response(SUCCESS_STATUS, "QUESTION RETRIEVED SUCCESSFULLY",
+				array("question" => $question->toString(), "answers" => $answersDataList, "tags" => $tagList));
 
 		} catch (Throwable $exception) {
 			log_message(ERROR_STATUS, "QuestionModel - getQuestionById() Exception: " . $exception->getMessage());
@@ -96,8 +317,9 @@ class QuestionModel extends CI_Model
 	/**
 	 * @throws Exception
 	 */
-	// function for retrieve all questions
-	public function getAllQuestions(): Response
+// function for retrieve all questions
+	public
+	function getAllQuestions(): Response
 	{
 		try {
 			log_message(INFO_STATUS, "QuestionModel - getAllQuestions(): function called ");
@@ -121,8 +343,9 @@ class QuestionModel extends CI_Model
 	/**
 	 * @throws Exception
 	 */
-	// function for retrieve all questions by user id
-	public function getQuestionsByUserId(int $userId): Response
+// function for retrieve all questions by user id
+	public
+	function getQuestionsByUserId(int $userId): Response
 	{
 		try {
 			log_message(INFO_STATUS, "QuestionModel - getQuestionsByUserId(): function called ");
@@ -148,8 +371,9 @@ class QuestionModel extends CI_Model
 	/**
 	 * @throws Exception
 	 */
-	// function to get most answered questions
-	public function getTrendingQuestions(): Response
+// function to get most answered questions
+	public
+	function getTrendingQuestions(): Response
 	{
 		try {
 			log_message(INFO_STATUS, "QuestionModel - getTrendingQuestions(): function called ");
@@ -188,17 +412,22 @@ class QuestionModel extends CI_Model
 	/**
 	 * @throws Exception
 	 */
-	// function to vote question
-	public function voteQuestion(int $questionId, bool $isUpVote): Response
+// function to vote question
+	public
+	function voteQuestion(int $questionId, bool $isUpVote): Response
 	{
 		try {
 			log_message(INFO_STATUS, "QuestionModel - voteQuestion(): function called ");
 
+			log_message(INFO_STATUS, "555QuestionModel - voteQuestion(): function called" . $questionId . "||" . $isUpVote);
+
 			// retrieving the question from the table by id
 			$retrievedQuestionResponse = $this->getQuestionById($questionId);
+			log_message(INFO_STATUS, "22QuestionModel - voteQuestion(): function called ");
 
 			// if question is retrieved and not null answer will save into the table
 			if ($retrievedQuestionResponse->getStatus() == SUCCESS_STATUS) {
+				log_message(INFO_STATUS, "3333QuestionModel - voteQuestion(): function called ");
 
 				if ($retrievedQuestionResponse->getData()[0]) {
 

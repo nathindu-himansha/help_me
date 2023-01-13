@@ -21,67 +21,31 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
 </head>
 <body>
-<nav class="navbar bg-light">
-	<div class="container">
+<div class="navbar bg-light border border-warning">
+	<div class="container ">
 		<div class="col-10">
-			<a class="navbar-brand" href="#">
-				<img src="./assets/user-profile.png" alt="logo" width="30" height="24">
+			<a class="navbar-brand" href="index.php">
+				<img src="./assets/logo.png" alt="logo" width="200 em" height="70 em">
 			</a>
 		</div>
-		<div id="header-btn-section" class="col-2 text-right">
+		<div data-bs-toggle="tooltip" title="user profile" id="header-btn-section" class="col-1.5 text-right bg-white rounded border border-warning">
 
 		</div>
 	</div>
-</nav>
+</div>
 
 <script lang="JavaScript">
 
-	// $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-	// 	options.url = 'http://localhost/help_me/index.php' + options.url;
-	// });
-	//
-	// const TokenValidationModel = Backbone.Model.extend({
-	// 	url: "/api/token_verify"
-	// });
-	// const tokenValidationModel = new TokenValidationModel();
-	//
-	// function validateToken() {
-	// 	document.getElementById('header-btn-section').innerHTML = "";
-	//
-	// 	//console.log("uuuuu");
-	// 	//console.log(<p hhhhp //echo base_url("news/local/123"); ?>//);
-	//
-	// 	const token = window.localStorage.getItem('token');
-	// 	tokenValidationModel.save({}, {
-	// 		headers: {'Authorization': 'Bearer ' + token},
-	// 		async: false,
-	// 		contentType: 'application/json',
-	// 		success: function (users, response) {
-	// 			console.log("nhsbhjsd");
-	// 			const element = document.getElementById('header-btn-section');
-	// 			let html = "<a href='user_profile.php'><button class='border-0 bg-transparent' <button><img src='./assets/user-profile.png' alt='logo' width='30' height='24'/> </button></a>";
-	// 			element.insertAdjacentHTML('beforeend', html);
-	// 		},
-	// 		error: function (model, response) {
-	// 			if (response.status === 401) {
-	// 				const element = document.getElementById('header-btn-section');
-	// 				let html = "<a href='user_login.php'><button class='border-0 bg-transparent' <button class='btn-warning'>Login/Signup</button></a>";
-	// 				element.insertAdjacentHTML('beforeend', html);
-	//
-	// 				window.location.href = "user_login.php";
-	// 			}
-	// 		}
-	// 	});
-	// 	setTimeout(validateToken, 10000000);
-	// }
-
-	//validateToken();
+	// Initialize tooltips
+	const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl)
+	});
 
 	function setHeaderLoginIcon() {
 		document.getElementById('header-btn-section').innerHTML = "";
 		const token = window.localStorage.getItem('token');
 		const fName = window.localStorage.getItem('name');
-		console.log("tojeee", token)
 		if (token === null) {
 			const element = document.getElementById('header-btn-section');
 			let html = "<a href='user_login.php'><button class='btn border-0 btn-warning'>Login/Signup</button></a>";

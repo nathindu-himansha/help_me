@@ -27,14 +27,13 @@ class TagManagingController extends RestController
 				$this->load->model('UserTokenModel');
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
-					// catching the received data
-					$enteredTag = $this->input->post('tag');
+					//capturing the request body data
+					$jsonArray = json_decode(file_get_contents('php://input'),true);
+					$enteredTag= $jsonArray['tag'];
 
-					// validation rules for required fields
-					$this->form_validation->set_rules('tag', 'Question Tag', 'required');
 
 					// validating required fields and passing into tag model
-					if ($this->form_validation->run()) {
+					if(!($enteredTag=="")) {
 
 						/**
 						 * @var Response $response

@@ -65,6 +65,10 @@ $route['api/get/tags'] = 'api/TagManagingController/all_tags'; // GET
 
 //question
 $route['api/create/question'] = 'api/QuestionManagingController/create_question'; // POST
+$route['api/update/question'] = 'api/QuestionManagingController/update_question'; // POST
+
+$route['api/delete/question/(:num)'] = 'api/QuestionManagingController/delete_question/$1'; // DELETE
+
 $route['api/get/question'] = 'api/QuestionManagingController/retrieve_question'; // GET
 $route['api/answer/question'] = 'api/QuestionManagingController/answer_question'; // POST
 $route['api/get/trending_question'] = 'api/QuestionManagingController/trending_question'; // GET
@@ -73,4 +77,6 @@ $route['api/question/vote'] = 'api/QuestionManagingController/vote_question'; //
 // user
 $route['api/user'] = 'api/UserManagementController/retrieve_user_profile'; // GET
 $route['api/user/update'] = 'api/UserManagementController/update_user_details'; // post
+
+
 

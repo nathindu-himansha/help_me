@@ -1,30 +1,24 @@
 <?php
 
-namespace entities;
-class Question
+namespace dto;
+class QuestionData
 {
-	/**
-	 * @var int
-	 *
-	 * @ORM\Column(name="id", type="integer")
-	 * @ORM\Id
-	 * @ORM\GeneratedValue(strategy="AUTO")
-	 */
+
 	private int $id;
 	private string $questionTitle;
 	private string $question;
 	private int $votes;
-	private int $fkUserId;
+	private string $fkUserFirstName;
 	private string $dateTime;
 
 
-	public function __construct(int $id, string $questionTitle, string $question, int $votes, int $fkUserId,string $dateTime)
+	public function __construct(int $id, string $questionTitle, string $question, int $votes, string $fkUserFirstName,string $dateTime)
 	{
 		$this->id = $id;
 		$this->questionTitle = $questionTitle;
 		$this->question = $question;
 		$this->votes = $votes;
-		$this->fkUserId = $fkUserId;
+		$this->fkUserFirstName = $fkUserFirstName;
 		$this->dateTime=$dateTime;
 	}
 
@@ -88,21 +82,22 @@ class Question
 	}
 
 
-	public function getFkUserId(): int
+	public function getFkUserFirstName(): string
 	{
-		return $this->fkUserId;
+		return $this->fkUserFirstName;
 	}
 
 
-	public function setFkUserId(int $fkUserId): void
+	public function setFkUserFirstName(string $fkUserFirstName): void
 	{
-		$this->fkUserId = $fkUserId;
+		$this->fkUserFirstName = $fkUserFirstName;
 	}
+
 
 	public function toString(): array
 	{
 		return array("id" => $this->getId(), "title" => $this->getQuestionTitle(), "question" => $this->getQuestion(),
-			"votes" => $this->getVotes(), "user" => $this->getFkUserId(),"datetime"=>$this->dateTime);
+			"votes" => $this->getVotes(), "user_fName" => $this->getFkUserFirstName(),"datetime"=>$this->dateTime);
 	}
 
 

@@ -37,8 +37,12 @@ class TagModel extends CI_Model
 				$tagData = array("tag" => strtolower($tag));
 				$this->db->insert('tag', $tagData);
 
-				log_message(INFO_STATUS, "Tag: " . $tag . " successfully added to the database");
-				return new Response(SUCCESS_STATUS, "TAG INSERTED SUCCESSFULLY", $tagData);
+				// retrieving the saved tag
+				$tag_id = $this->db->insert_id();
+				$tag = $this->getTagById(intval($tag_id));
+
+				log_message(INFO_STATUS, "Tag: " . $tag->getTag(). " successfully added to the database");
+				return new Response(SUCCESS_STATUS, "TAG INSERTED SUCCESSFULLY", array($tag));
 			}
 
 		} catch (Throwable $exception) {
@@ -58,6 +62,7 @@ class TagModel extends CI_Model
 
 			$this->db->where('tag', $tagName);
 			$retrievedTag = $this->db->get('tag');
+
 			return new Tag($retrievedTag->row()->id, $retrievedTag->row()->tag);
 
 		} catch (Throwable $exception) {
@@ -112,7 +117,7 @@ class TagModel extends CI_Model
 	/**
 	 * @throws Exception
 	 */
-	private function checkTagIsExists($tag): bool
+	public function checkTagIsExists($tag): bool
 	{
 		try {
 			log_message(INFO_STATUS, "TagModel - checkTagIsExists(): function called ");

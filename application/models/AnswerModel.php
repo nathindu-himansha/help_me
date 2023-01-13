@@ -116,6 +116,32 @@ class AnswerModel extends CI_Model
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	// function for retrieve questions by id
+	public function getAnswersByQuestionId(int $questionId): Response
+	{
+		try {
+			log_message(INFO_STATUS, "AnswerModel - getAnswersByQuestionId(): function called ");
+			$this->db->where('fk_user_question_id', $questionId);
+			$retrievedAnswers = $this->db->get('user_answer');
+
+			$retrievedAnswersList = array();
+			foreach ($retrievedAnswers->result() as $retrievedAnswer) {
+				$retrievedAnswersList[] = $retrievedAnswer;
+			}
+
+			return new Response(SUCCESS_STATUS, "ANSWERS RETRIEVAL SUCCESSFUL", $retrievedAnswersList);
+
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "AnswerModel - getAnswersByQuestionId() Exception: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "ANSWERS RETRIEVAL UNSUCCESSFUL : EXCEPTION - "
+				. $exception->getMessage(), null);
+
+		}
+	}
+
 
 	/**
 	 * @throws Exception

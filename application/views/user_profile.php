@@ -67,7 +67,7 @@
 						<div class="col">
 							<div class="form-outline flex-fill">
 								<label class="form-label" for="email_field">Email</label>
-								<input type="text" id="email_field" class="form-control" value="<%= data ? data.email:
+								<input type="text" id="email_field" disabled class="form-control" value="<%= data ? data.email:
 								'' %> "/>
 							</div>
 						</div>
@@ -81,6 +81,10 @@
 					Update Details
 				</button>
 				<button type="button" class="btn btn-danger" onclick = "logoutUser()">Logout</button>
+			</div>
+
+			<div id="error-alert-section" class="mt-4">
+
 			</div>
 
 		</div>
@@ -181,11 +185,10 @@
 	const tokenValidationModel = new TokenValidationModel();
 
 	function validateToken() {
-
-		//console.log("uuuuu");
-		//console.log(<p hhhhp //echo base_url("news/local/123"); ?>//);
-
 		const token = window.localStorage.getItem('token');
+		if(token==null){
+			window.location.href = "user_login.php";
+		}
 		tokenValidationModel.save({}, {
 			headers: {'Authorization': 'Bearer ' + token},
 			async: false,
@@ -201,7 +204,6 @@
 		});
 		setTimeout(validateToken, 1000000);
 	}
-
 	validateToken();
 
 	const LogoutModel = Backbone.Model.extend({
@@ -295,66 +297,69 @@
 			"click #profile-update": "updateProfile"
 		},
 		updateProfile: function () {
+			document.getElementById('error-alert-section').innerHTML = "";
 
 			const first_name = $('#first_name_field').val();
 			const last_name = $('#last_name_field').val();
 			const email = $('#email_field').val();
 
+			if (first_name === "" || last_name === "") {
+				const element = document.getElementById('error-alert-section');
+				let html = "<div class='alert alert-danger'> empty fields cannot submit </div>";
+				element.insertAdjacentHTML('beforeend', html);
 
-			const userUpdatedDetails = {
-				"first_name": first_name,
-				"last_name": last_name,
-				"email": email,
-			};
+			} else {
+				const userUpdatedDetails = {
+					"first_name": first_name,
+					"last_name": last_name,
+					"email": email,
+				};
 
-			const self = this;
-			const token = window.localStorage.getItem('token');
-			userProfileUpdateModel.save(userUpdatedDetails, {
-				headers: {'Authorization': 'Bearer ' + token},
-				async: false,
-				contentType: 'application/json',
-				success: function (users, response) {
-					window.location.reload();
 
-					console.log("SUCCESS - userProfileUpdateModel-save()");
-					console.log(response);
-				},
-				error: function (model, response) {
-					if (response.status === 401) {
-						window.location.href = "user_login.php";
+				const self = this;
+				const token = window.localStorage.getItem('token');
+				userProfileUpdateModel.save(userUpdatedDetails, {
+					headers: {'Authorization': 'Bearer ' + token},
+					async: false,
+					contentType: 'application/json',
+					success: function (users, response) {
+						window.location.reload();
+
+						console.log("SUCCESS - userProfileUpdateModel-save()");
+						console.log(response);
+					},
+					error: function (model, response) {
+						const responseData = JSON.parse(response.responseText);
+						let errorMsg = "";
+
+						switch (response.status) {
+							case 401:
+								window.location.href = "user_login.php";
+								break;
+							case 422:
+								errorMsg = "PLEASE FILL ALL THE FIELDS";
+								break;
+							case 400:
+								errorMsg = responseData.message;
+								break;
+							case 500:
+								errorMsg = "SYSTEM ERROR. PLEASE CONTACT SYSTEM ADMINISTRATION";
+								break;
+							default:
+								errorMsg = "SOMETHING WENT WRONG";
+								break;
+						}
+						document.getElementById('profile-data-section').innerHTML = "";
+						const element = document.getElementById('profile-data-section');
+						let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='index.php'> REDIRECT ME TO HOME</a>" +"</div>";
+						element.insertAdjacentHTML('beforeend', html);
+						console.log("ERROR - userProfileUpdateModel save() CODE: " + response.status + " STATUS: " + response.statusText);
 					}
-					console.log("ERROR - userProfileUpdateModel save() CODE: " + response.status + " STATUS: " + response.statusText);
-				}
-			});
+				});
+			}
 		}
 	});
 	const userProfileUpdateView = new UserProfileUpdateView();
-
-	//
-	// var Router = Backbone.Router.extend({
-	// 	routes: {
-	// 		"": "defaultRoute",
-	// 		"/login": "firstRoute",
-	// 		"2": "secondRoute",
-	// 		"3": "thirdRoute",
-	// 	},
-	// 	defaultRoute: function () {
-	// 		this.navigate("#/default");
-	// 	},
-	// 	firstRoute: function () {
-	// 		this.navigate("http://localhost/help_me/application/views/login.php");
-	// 	},
-	// 	secondRoute: function () {
-	// 		this.navigate("#/second");
-	// 	},
-	// 	thirdRoute: function () {
-	// 		this.navigate("#/third");
-	// 	},
-	// });
-	//
-	// router = new Router();
-	// Backbone.history.start();
-
 </script>
 
 </body>

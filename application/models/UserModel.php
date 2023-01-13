@@ -148,7 +148,7 @@ class UserModel extends CI_Model
 	}
 
 	// function for get user from the database by id
-	private function getUserByIdFromUserTable($id): CI_DB_result
+	public function getUserByIdFromUserTable($id): CI_DB_result
 	{
 		log_message(INFO_STATUS, "UserModel - getUserByIdFromUserTable(): function called ");
 
@@ -252,8 +252,7 @@ class UserModel extends CI_Model
 				if ($retrievedUser->num_rows() == 1) {
 
 					// updates the existing record
-					$data = ['first_name' => $user->getFirstName(), 'last_name' => $user->getLastName(),
-						'email' => $user->getEmail()];
+					$data = ['first_name' => $user->getFirstName(), 'last_name' => $user->getLastName()];
 					$this->db->where('id', $retrievedUser->row()->id);
 					$this->db->update('user', $data);
 

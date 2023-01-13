@@ -16,7 +16,7 @@ class UserManagementController extends RestController
 
 	public function update_user_details_post()
 	{
-		log_message(INFO_STATUS, "UserManagementController - update_user_details(): function called ");
+		log_message(INFO_STATUS, "UserManagementController - update_user_details_put(): function called ");
 		try {
 			$headerToken = $this->input->get_request_header('Authorization');
 			if ($headerToken != "") {
@@ -58,7 +58,7 @@ class UserManagementController extends RestController
 			}
 
 		} catch (Throwable $exception) {
-			log_message(ERROR_STATUS, "UserManagementController - update_user_details(): " . $exception->getMessage());
+			log_message(ERROR_STATUS, "UserManagementController - update_user_details_put(): " . $exception->getMessage());
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}

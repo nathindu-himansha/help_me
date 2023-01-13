@@ -152,22 +152,6 @@
 								errorMsg = "SOMETHING WENT WRONG";
 								break;
 						}
-						// if(response.status==422){
-						// 	errorMsg = "PLEASE FILL ALL THE FIELDS";
-						// }
-						// else if(response.status==500){
-						// 	errorMsg = "SYSTEM ERROR. PLEASE CONTACT SYSTEM ADMINISTRATION";
-						// }
-						// else if(response.status=400){
-						// 	errorMsg = responseData.message;
-						// }
-						// else{
-						// 	errorMsg ="SOMETHING WENT WRONG";
-						// }
-
-
-						console.log(JSON.stringify(JSON.parse(response.responseText)))
-
 						const element = document.getElementById('error-alert-section');
 						let html = "<div class='alert alert-danger'>" + errorMsg + "</div>";
 						element.insertAdjacentHTML('beforeend', html);
