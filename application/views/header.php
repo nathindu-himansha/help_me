@@ -19,15 +19,29 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js"
 			type="text/javascript"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
+
+	<style>
+
+		.navbar-brand{
+			margin-left: -5vw;
+		}
+
+		h5 {
+			font-size: 1.2vw;
+		}
+
+	</style>
+
 </head>
 <body>
-<div class="navbar bg-light border border-warning">
-	<div class="container ">
-		<div class="col-10">
+<div class="navbar bg-light border-bottom border-warning">
+	<div id="header-section" class="container ">
+		<div class="col-2">
 			<a class="navbar-brand" href="index.php">
 				<img src="./assets/logo.png" alt="logo" width="200 em" height="70 em">
 			</a>
 		</div>
+		<div class="col-2"></div>
 		<div data-bs-toggle="tooltip" title="user profile" id="header-btn-section" class="col-1.5 text-right bg-white rounded border border-warning">
 
 		</div>

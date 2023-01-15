@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Help Me | User Profile</title>
+	<title>Help Me | Register</title>
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
 		  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -20,6 +20,12 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js"
 			type="text/javascript"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
+
+	<style>
+		h5 {
+			font-size: 1.2vw;
+		}
+	</style>
 </head>
 
 <body>
@@ -32,8 +38,8 @@
 			<div class="col-4 bg-light text-dark pt-4">
 
 				<div class="row justify-content-center mb-5">
-					<img src="./assets/user-profile.png" alt="user-img" width="100vw"
-						 height="80vh"/>
+					<img src="./assets/logo.png" alt="user-img" width="50%"
+						 height="80%"/>
 				</div>
 
 				<div class="row justify-content-center mb-5 text-muted">
@@ -66,9 +72,10 @@
 
 
 				<!-- Submit button -->
-				<button type=submit id="register-submit" class="btn btn-warning btn-block mb-4 text-light">Sign Up</button>
+				<button type=submit id="register-submit" class="btn btn-warning btn-block mb-4 text-light">Sign Up
+				</button>
 
-				<!-- Register buttons -->
+				<!-- login buttons -->
 				<div class="text-center">
 					<p>Already have an account? <a href="user_login.php">Login</a></p>
 				</div>
@@ -88,7 +95,6 @@
 			options.url = 'http://localhost/help_me/index.php' + options.url;
 		});
 
-
 		const UserRegisterModel = Backbone.Model.extend({
 			url: "/api/register"
 		});
@@ -101,11 +107,8 @@
 			},
 			model: userRegisterModel,
 			initialize: function () {
-				//this.retrieveProfile()
 			},
 			render: function () {
-
-				//this.retrieveProfile()
 			},
 			userRegister: function () {
 
@@ -113,53 +116,76 @@
 
 				const firstName = $('#fName_input').val();
 				const lastName = $('#lName_input').val();
-				const email = $('#email_input').val();
+				const email = $('#email_input').val().toLowerCase();
 				const password = $('#pwd_input').val();
 
-				const registerData = {
-					"firstName":firstName,
-					"lastName":lastName,
-					"email": email,
-					"password": password
-				};
+				const validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-				const self = this;
-				userRegisterModel.save(registerData, {
-					async: false,
-					contentType: 'application/json',
-					success: function (users, response) {
-						window.location.href="user_login.php";
-					},
-					error: function (model, response) {
-						// const obj = JSON.parse(response)
-						// console.log("weee"+obj)
+				// validations
+				if (firstName === "" || lastName === "" || email === "" || password === "") {
 
+					const element = document.getElementById('error-alert-section');
+					let html = "<div class='alert alert-danger'>PLEASE FILL ALL THE FIELDS</div>";
+					element.insertAdjacentHTML('beforeend', html);
 
-						const responseData = JSON.parse(response.responseText);
-						let errorMsg = "";
+				} else if (!(email.match(validRegex))) {
+					const element = document.getElementById('error-alert-section');
+					let html = "<div class='alert alert-danger'>EMAIL IS NOT VALID. PLEASE ENTER YOUR IIT EMAIL</div>";
+					element.insertAdjacentHTML('beforeend', html);
 
-						switch (response.status) {
-							case 422:
-								errorMsg = "PLEASE FILL ALL THE FIELDS";
-								break;
-							case 400:
-								errorMsg = responseData.message;
-								break;
-							case 500:
-								errorMsg = "SYSTEM ERROR. PLEASE CONTACT SYSTEM ADMINISTRATION";
-								break;
-							default:
-								errorMsg = "SOMETHING WENT WRONG";
-								break;
+				} else if (!(email.includes("@iit.ac.lk"))) {
+					const element = document.getElementById('error-alert-section');
+					let html = "<div class='alert alert-danger'>EMAIL IS NOT VALID. PLEASE ENTER YOUR IIT EMAIL</div>";
+					element.insertAdjacentHTML('beforeend', html);
+
+				} else if (password.length < 8) {
+					const element = document.getElementById('error-alert-section');
+					let html = "<div class='alert alert-danger'>PASSWORD SHOULD BE WITH MINIMUM 8 CHARACTERS</div>";
+					element.insertAdjacentHTML('beforeend', html);
+
+				} else {
+
+					const registerData = {
+						"firstName": firstName,
+						"lastName": lastName,
+						"email": email,
+						"password": password
+					};
+
+					const self = this;
+					userRegisterModel.save(registerData, {
+						async: false,
+						contentType: 'application/json',
+						success: function (users, response) {
+							const element = document.getElementById('error-alert-section');
+							let html = "<div class='alert alert-success'> REGISTRATION SUCCESSFUL" + "<a href='user_login.php'> REDIRECT TO LOGIN</a>" + "</div>";
+							element.insertAdjacentHTML('beforeend', html);
+						},
+						error: function (model, response) {
+
+							let errorMsg = "";
+
+							switch (response.status) {
+								case 422:
+									errorMsg = "PLEASE FILL ALL THE FIELDS";
+									break;
+								case 400:
+									const responseData = JSON.parse(response.responseText);
+									errorMsg = responseData.message;
+									break;
+								case 500:
+									errorMsg = "SYSTEM ERROR. PLEASE CONTACT SYSTEM ADMINISTRATION";
+									break;
+								default:
+									errorMsg = "SOMETHING WENT WRONG";
+									break;
+							}
+							const element = document.getElementById('error-alert-section');
+							let html = "<div class='alert alert-danger'>" + errorMsg + "</div>";
+							element.insertAdjacentHTML('beforeend', html);
 						}
-						const element = document.getElementById('error-alert-section');
-						let html = "<div class='alert alert-danger'>" + errorMsg + "</div>";
-						element.insertAdjacentHTML('beforeend', html);
-
-						//document.getElementById('error-alert-section').append(<section id="error-alert-section" class="alert alert-danger" role="alert">responseData.message</section>);
-						console.log("ERROR - UserRegisterModel save() CODE: " + response.status + " STATUS: " + response.statusText);
-					}
-				})
+					})
+				}
 			}
 		});
 		const userRegisterView = new UserRegisterView();

@@ -11,7 +11,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class JwtLibrary
 {
 	const JWT_SECRET_KEY = "AsswdCwHelpMeSecret";
-	const JWT_TOKEN_VALIDITY = 60*60*60; // todo reduce this time at the end
+	const JWT_TOKEN_VALIDITY = 60*60;
 	const JWT_ALGORITHM_TYPE = "HS256";
 
 	/**

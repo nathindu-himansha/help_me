@@ -63,6 +63,107 @@ class AnswerModel extends CI_Model
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	// function for retrieve questions by id
+	public function updateAnswer(string $headerToken, int $answerId, string $updatedAnswer): Response
+	{
+		try {
+			log_message(INFO_STATUS, "AnswerModel - updateAnswer(): function called ");
+
+			// retrieving the user from the token
+			$this->load->model('UserTokenModel');
+			$userInToken = $this->UserTokenModel->getUserByTokenPayload($headerToken);
+
+			$answer = $this->getAnswerById($answerId)->getData()[0];
+			if ($answer) {
+				if ($answer['userId'] == $userInToken->getId()) {
+
+					// updates the existing record (question)
+					$data = ['answer' => $updatedAnswer];
+					$this->db->where('id', $answerId);
+					$this->db->update('user_answer', $data);
+
+					$updated_answer = $this->getAnswerById($answerId)->getData()[0];
+
+					return new Response(SUCCESS_STATUS, "ANSWER UPDATED SUCCESSFULLY", $updated_answer);
+
+				} else {
+					return new Response(ERROR_STATUS, "NOT ALLOWED TO UPDATE", null);
+				}
+			} else {
+				return new Response(ERROR_STATUS, "ANSWER NOT EXISTS", null);
+			}
+
+
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "AnswerModel - updateAnswer() Exception: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "ANSWER UPDATE UNSUCCESSFUL : EXCEPTION - " . $exception->getMessage(), null);
+		}
+	}
+
+
+	/**
+	 * @throws Exception
+	 */
+	// function for retrieve questions by id
+	public function deleteAnswer(string $headerToken, int $answerId): Response
+	{
+		try {
+			log_message(INFO_STATUS, "AnswerModel - deleteAnswer(): function called ");
+
+			// retrieving the user from the token
+			$this->load->model('UserTokenModel');
+			$userInToken = $this->UserTokenModel->getUserByTokenPayload($headerToken);
+
+			$answer = $this->getAnswerById($answerId)->getData()[0];
+			if ($answer) {
+				if ($answer['userId'] == $userInToken->getId()) {
+
+					// deleting answer
+					$this->db->where('id', $answerId);
+					$this->db->delete('user_answer');
+
+					return new Response(SUCCESS_STATUS, "ANSWER DELETED SUCCESSFULLY", null);
+
+				} else {
+					return new Response(ERROR_STATUS, "NOT ALLOWED TO UPDATE", null);
+				}
+			} else {
+				return new Response(ERROR_STATUS, "ANSWER NOT EXISTS", null);
+			}
+
+
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "AnswerModel - deleteAnswer() Exception: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "ANSWER DELETE UNSUCCESSFUL : EXCEPTION - " . $exception->getMessage(), null);
+		}
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	// function for retrieve questions by id
+	public function getAnswerWithQuestionById(int $answerId): Response
+	{
+		try {
+			log_message(INFO_STATUS, "AnswerModel - getAnswerWithQuestionById(): function called ");
+
+			$answer = $this->getAnswerById($answerId)->getData()[0];
+
+			$this->load->model('QuestionModel');
+			$answeredQuestionData = $this->QuestionModel->getQuestionById($answer['questionId'])->getData()[0];
+
+			return new Response(SUCCESS_STATUS, "ANSWER DATA RETRIEVED SUCCESSFULLY",
+				array("answer" => $answer, "question" => $answeredQuestionData));
+
+		} catch (Throwable $exception) {
+			log_message(ERROR_STATUS, "AnswerModel - getAnswerWithQuestionById() Exception: " . $exception->getMessage());
+			return new Response(ERROR_STATUS, "ANSWER RETRIEVED UNSUCCESSFUL : EXCEPTION - " . $exception->getMessage(), null);
+		}
+	}
+
 
 
 	/**

@@ -25,21 +25,11 @@ class QuestionManagingController extends RestController
 				$this->load->model('UserTokenModel');
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
-//					// capturing the request body data
-//					$enteredTitle = $this->input->post('title');
-//					$enteredQuestion = $this->input->post('question');
-//					$enteredTags = $this->input->post('tags');
-
 					//capturing the request body data
 					$jsonArray = json_decode(file_get_contents('php://input'), true);
 					$enteredTitle = $jsonArray['title'];
 					$enteredQuestion = $jsonArray['question'];
 					$enteredTags = $jsonArray['tags'];
-
-
-//					// validation rules for required fields
-//					$this->form_validation->set_rules('title', 'Title', 'required');
-//					$this->form_validation->set_rules('question', 'Question', 'required');
 
 					// validating required fields and passing into users model
 					if (!($enteredTitle == "" or $enteredQuestion == "" or $enteredTags == "")) {
@@ -85,22 +75,12 @@ class QuestionManagingController extends RestController
 				$this->load->model('UserTokenModel');
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
-//					// capturing the request body data
-//					$enteredTitle = $this->input->post('title');
-//					$enteredQuestion = $this->input->post('question');
-//					$enteredTags = $this->input->post('tags');
-
 					//capturing the request body data
 					$jsonArray = json_decode(file_get_contents('php://input'), true);
 					$questionId = $jsonArray['question_id'];
 					$enteredTitle = $jsonArray['title'];
 					$enteredQuestion = $jsonArray['question'];
 					$enteredTags = $jsonArray['tags'];
-
-
-//					// validation rules for required fields
-//					$this->form_validation->set_rules('title', 'Title', 'required');
-//					$this->form_validation->set_rules('question', 'Question', 'required');
 
 					// validating required fields and passing into users model
 					if (!($questionId == "" or $enteredTitle == "" or $enteredQuestion == "" or $enteredTags == "")) {
@@ -146,12 +126,10 @@ class QuestionManagingController extends RestController
 				$this->load->model('UserTokenModel');
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
-					log_message(INFO_STATUS,"IDDDDDDDDD".strval($id));
+					log_message(INFO_STATUS, "IDDDDDDDDD" . strval($id));
 
 					//capturing the request body data
-					$jsonArray = json_decode(file_get_contents('php://input'), true);
-					$questionId =$id;
-
+					$questionId = $id;
 
 					// validating required fields and passing into users model
 					if (!($questionId == "")) {
@@ -231,9 +209,9 @@ class QuestionManagingController extends RestController
 	}
 
 
-	public function answer_question_post()
+	public function search_question_post()
 	{
-		log_message(INFO_STATUS, "QuestionManagingController - answer_question_post(): function called ");
+		log_message(INFO_STATUS, "QuestionManagingController - search_question_get(): function called ");
 		try {
 			$headerToken = $this->input->get_request_header('Authorization');
 			if ($headerToken != "") {
@@ -242,42 +220,36 @@ class QuestionManagingController extends RestController
 				$this->load->model('UserTokenModel');
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
-//					// capturing the request body data
-//					$questionId = $this->input->post('questionId');
-//					$answer = $this->input->post('answer');
-
-					//capturing the request body data
+					// capturing the request body data
 					$jsonArray = json_decode(file_get_contents('php://input'), true);
-					$questionId = $jsonArray['questionId'];
-					$answer = $jsonArray['answer'];
+					$string = $jsonArray['string'];
 
-//					// validation rules for required fields
-//					$this->form_validation->set_rules('questionId', 'Question ID', 'required');
-//					$this->form_validation->set_rules('answer', 'Answer', 'required');
 
-					// validating required fields and passing into users model
-					if (!($questionId == "" or $answer == "")) {
-						$this->load->model('AnswerModel');
+					$this->load->model('QuestionModel');
 
-						$response = $this->AnswerModel->createAnswer($headerToken, intval($questionId), $answer);
+					// checking whether id is exits or not
+					if (!$string == "") {
+						$response = $this->QuestionModel->getQuestionsByString($string);
+
 						if ($response->getStatus() == SUCCESS_STATUS) {
 							$this->response($response->toString(), self::HTTP_OK);
 						} else {
 							$this->response($response->toString(), self::HTTP_BAD_REQUEST);
 						}
-
 					} else {
-						$this->response("REQUIRED FIELDS ARE NOT FILLED", self::HTTP_UNPROCESSABLE_ENTITY);
+						$this->response("NO STRING TO SEARCH", self::HTTP_UNPROCESSABLE_ENTITY);
 					}
+
 				} else {
 					$this->response("INVALID TOKEN", self::HTTP_UNAUTHORIZED);
 				}
 
 			} else {
 				$this->response("TOKEN NOT FOUND", self::HTTP_UNPROCESSABLE_ENTITY);
+
 			}
 		} catch (Throwable $exception) {
-			log_message(ERROR_STATUS, "QuestionManagingController - answer_question_post(): " . $exception->getMessage());
+			log_message(ERROR_STATUS, "QuestionManagingController - search_question_get(): " . $exception->getMessage());
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -293,7 +265,6 @@ class QuestionManagingController extends RestController
 				// validating token
 				$this->load->model('UserTokenModel');
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
-
 
 					$this->load->model('QuestionModel');
 					$response = $this->QuestionModel->getTrendingQuestions();
@@ -329,19 +300,10 @@ class QuestionManagingController extends RestController
 				$this->load->model('UserTokenModel');
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
-//					// capturing the request body data
-//					$questionId = $this->input->post('questionId');
-//					$isUpVote = $this->input->post('isUpVote');
-
 					//capturing the request body data
 					$jsonArray = json_decode(file_get_contents('php://input'), true);
 					$questionId = $jsonArray['questionId'];
 					$isUpVote = $jsonArray['isUpVote'];
-					log_message(INFO_STATUS, "HSHSHSHSHSHSHS::::" . $questionId . ";;;;" . $isUpVote);
-
-					// validation rules for required fields
-//					$this->form_validation->set_rules('questionId', 'Question ID', 'required');
-//					$this->form_validation->set_rules('isUpVote', 'isUpVote', 'required');
 
 					// validating required fields and passing into users model
 					if (!($questionId == "" or $isUpVote == "")) {
@@ -375,6 +337,4 @@ class QuestionManagingController extends RestController
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
-
-
 }

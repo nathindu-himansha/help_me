@@ -3,7 +3,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 require_once("application/entities/User.php");
 require_once("application/libraries/RestControllerLibrary.php");
 
-use dto\Response;
 use entities\User;
 use Libraries\RestControllerLibrary as RestController;
 
@@ -26,19 +25,19 @@ class UserManagementController extends RestController
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
 					//capturing the request body data
-					$jsonArray = json_decode(file_get_contents('php://input'),true);
-					$firstName= $jsonArray['first_name'];
-					$lastName= $jsonArray['last_name'];
-					$email=$jsonArray['email'];
+					$jsonArray = json_decode(file_get_contents('php://input'), true);
+					$firstName = $jsonArray['first_name'];
+					$lastName = $jsonArray['last_name'];
+					$email = $jsonArray['email'];
 
 					// validating required fields and passing into users model
-					if(!($firstName=="" or$lastName=="" or $email=="")) {
+					if (!($firstName == "" or $lastName == "" or $email == "")) {
 
-						$userProfileData = new User($firstName, $lastName, $email,"");
+						$userProfileData = new User($firstName, $lastName, $email, "");
 
 						// user profile update
 						$this->load->model('UserModel');
-						$response = $this->UserModel->updateUserDetails($headerToken,$userProfileData);
+						$response = $this->UserModel->updateUserDetails($headerToken, $userProfileData);
 
 						if ($response->getStatus() == SUCCESS_STATUS) {
 							$this->response($response->toString(), self::HTTP_OK);
@@ -97,6 +96,5 @@ class UserManagementController extends RestController
 			$this->response("EXCEPTION CAUGHT: " . $exception->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
-
 
 }

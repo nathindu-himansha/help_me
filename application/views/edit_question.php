@@ -1,9 +1,9 @@
-<?php include 'header.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Help Me | User Profile</title>
+	<title>Help Me | Edit Question</title>
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
 		  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -23,9 +23,10 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
 </head>
 <body>
+<?php include 'header.php'; ?>
 
 <div class="mt-5" id="question-update-section">
-	<script type="text/template" id="edit-answer-template">
+	<script type="text/template" id="edit-question-template">
 		<div class="container">
 			<div class="mb-5 ">
 				<h3>Edit Question</h3>
@@ -54,6 +55,7 @@
 				<div class="col-md-10">
 
 					<div class="form-outline mb-4">
+						<label for="question-body"></label>
 						<textarea class="form-control" id="question-body" rows="4"> <%= data ? data.question.question:'' %></textarea>
 					</div>
 				</div>
@@ -84,7 +86,7 @@
 				</button>
 			</div>
 
-			<div id="error-alert-section">
+			<div id="error-alert-section" class="my-5">
 
 			</div>
 
@@ -122,7 +124,7 @@
 					}
 				}
 			});
-			setTimeout(validateToken, 1000000);
+			setTimeout(validateToken, 300000);
 		}
 
 		validateToken();
@@ -142,8 +144,6 @@
 		});
 		const questionDeleteModel = new QuestionDeleteModel({id: questionId, "question_id": questionId});
 
-		// var questionDeleteModel2 = new
-
 		const QuestionUpdateView = Backbone.View.extend({
 				el: '#question-update-section',
 				// model: questionSubmitModel,
@@ -154,7 +154,7 @@
 					this.getQuestionData()
 				},
 				events: {
-					"click #update-question-btn": "updateAnswer",
+					"click #update-question-btn": "updateQuestion",
 					"click #delete-question-btn": "deleteQuestion"
 				},
 				deleteQuestion: function () {
@@ -166,13 +166,9 @@
 							async: false,
 							contentType: 'application/json',
 							success: function (users, response) {
-								console.log("SUCCESS - QuestionAnswerView - fetch()");
-								console.log(response);
 								window.location.href = "user_profile.php";
 							},
 							error: function (model, response) {
-
-								const responseData = JSON.parse(response.responseText);
 								let errorMsg = "";
 
 								switch (response.status) {
@@ -183,6 +179,7 @@
 										errorMsg = "PLEASE FILL ALL THE FIELDS";
 										break;
 									case 400:
+										const responseData = JSON.parse(response.responseText);
 										errorMsg = responseData.message;
 										break;
 									case 500:
@@ -194,11 +191,8 @@
 								}
 								document.getElementById('question-update-section').innerHTML = "";
 								const element = document.getElementById('question-update-section');
-								let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='index.php'> REDIRECT ME TO HOME</a>" + "</div>";
+								let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='user_profile.php'> REDIRECT ME TO THE PROFILE</a>" + "</div>";
 								element.insertAdjacentHTML('beforeend', html);
-
-								console.log(response)
-								console.log("ERROR - QuestionAnswerView fetch() CODE: " + response.status + " STATUS: " + response.statusText);
 							}
 						})
 					}
@@ -211,13 +205,11 @@
 						async: false,
 						contentType: 'application/json',
 						success: function (users, response) {
-							console.log("SUCCESS - QuestionAnswerView - fetch()");
-							console.log(response);
 
-							// using for loop
+							// binding all obj tags as a single string with comma seperated
 							let tags = "";
 							for (let i = 0; i < response.data.tags.length; i++) {
-								// console.log(response.data.tags[i].tag)
+
 								if (i == 0) {
 									tags = tags.concat(response.data.tags[i].tag)
 								} else {
@@ -225,14 +217,15 @@
 								}
 							}
 
-							var template = _.template($('#edit-answer-template').html(), {data: response.data, tags: tags});
+							const template = _.template($('#edit-question-template').html(), {
+								data: response.data,
+								tags: tags
+							});
 							self.$el.html(template);
 						},
 						error: function (model, response) {
 
-							const responseData = JSON.parse(response.responseText);
 							let errorMsg = "";
-
 							switch (response.status) {
 								case 401:
 									window.location.href = "user_login.php";
@@ -241,6 +234,7 @@
 									errorMsg = "PLEASE FILL ALL THE FIELDS";
 									break;
 								case 400:
+									const responseData = JSON.parse(response.responseText);
 									errorMsg = responseData.message;
 									break;
 								case 500:
@@ -252,15 +246,13 @@
 							}
 							document.getElementById('question-update-section').innerHTML = "";
 							const element = document.getElementById('question-update-section');
-							let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='index.php'> redirect me to home</a>" + "</div>";
+							let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='user_profile.php'> REDIRECT ME TO THE PROFILE</a>" + "</div>";
 							element.insertAdjacentHTML('beforeend', html);
-							console.log("ERROR - QuestionAnswerView fetch() CODE: " + response.status + " STATUS: " + response.statusText);
 						}
 					})
 				},
-				updateAnswer: function () {
+				updateQuestion: function () {
 					document.getElementById('error-alert-section').innerHTML = "";
-
 
 					const question_title = $('#question-title').val();
 					const question_body = $('#question-body').val();
@@ -287,17 +279,13 @@
 								async: false,
 								contentType: 'application/json',
 								success: function (users, response) {
-									// after sucess forward into question-answer view(after page complted)
 
-									console.log("SUCCESS - questionUpdateModel-save()");
-									console.log(response);
-									//window.location.reload();
-									window.location.href = "add_answer.php?question_id=79";
-
-									//http://localhost/help_me/application/views/add_answer.php?question_id=79
+									const element = document.getElementById('error-alert-section');
+									let html = "<div class='alert alert-success'>" + "QUESTION UPDATED SUCCESSFULLY" + "<a href='user_profile.php'> REDIRECT ME TO THE PROFILE</a>" + "</div>";
+									element.insertAdjacentHTML('beforeend', html);
 								},
 								error: function (model, response) {
-									const responseData = JSON.parse(response.responseText);
+
 									let errorMsg = "";
 
 									switch (response.status) {
@@ -308,6 +296,7 @@
 											errorMsg = "PLEASE FILL ALL THE FIELDS";
 											break;
 										case 400:
+											const responseData = JSON.parse(response.responseText);
 											errorMsg = responseData.message;
 											break;
 										case 500:
@@ -319,9 +308,8 @@
 									}
 									document.getElementById('question-update-section').innerHTML = "";
 									const element = document.getElementById('question-update-section');
-									let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='index.php'> REDIRECT ME TO HOME</a>" + "</div>";
+									let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='user_profile.php'> REDIRECT ME TO THE PROFILE</a>" + "</div>";
 									element.insertAdjacentHTML('beforeend', html);
-									console.log("ERROR - questionUpdateModel save() CODE: " + response.status + " STATUS: " + response.statusText);
 								}
 							});
 						}
@@ -332,8 +320,7 @@
 		;
 		const questionUpdateView = new QuestionUpdateView();
 
-
 	</script>
-
+	<?php include 'footer.php'; ?>c
 </body>
 </html>

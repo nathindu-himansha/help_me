@@ -7,8 +7,6 @@ Header('Access-Control-Allow-Origin: *'); //for allow any domain, insecure
 Header('Access-Control-Allow-Headers: *'); //for allow any headers, insecure
 Header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 
-
-
 use dto\Response;
 use entities\User;
 use Libraries\RestControllerLibrary as RestController;
@@ -29,25 +27,14 @@ class AuthenticationController extends RestController
 
 		try {
 			// catching the received data
-			$jsonArray = json_decode(file_get_contents('php://input'),true);
+			$jsonArray = json_decode(file_get_contents('php://input'), true);
 			$firstName = $jsonArray['firstName'];
 			$lastName = $jsonArray['lastName'];
-			$email =$jsonArray['email'];
+			$email = $jsonArray['email'];
 			$password = $jsonArray['password'];
 
-//			$firstName = $this->input->post('firstName');
-//			$lastName = $this->input->post('lastName');
-//			$email = $this->input->post('email');
-//			$password = $this->input->post('password');
-
-			// validation rules for required fields
-//			$this->form_validation->set_rules('firstName', 'First Name', 'required');
-//			$this->form_validation->set_rules('lastName', 'Last Name', 'required');
-//			$this->form_validation->set_rules('email', 'Email', 'required');
-//			$this->form_validation->set_rules('password', 'Password', 'required');
-
 			// validating required fields and passing into users model
-			if(!($firstName=="" or $lastName=="" or $email=="" or $password=="")) {
+			if (!($firstName == "" or $lastName == "" or $email == "" or $password == "")) {
 
 				/**
 				 * @var Response $response
@@ -75,20 +62,14 @@ class AuthenticationController extends RestController
 	{
 		log_message(INFO_STATUS, "AuthenticationControllerLibrary - user_login_post(): function called ");
 		try {
-			// catching the received data
-
 
 			//capturing the request body data
-			$jsonArray = json_decode(file_get_contents('php://input'),true);
-			$email =$jsonArray['email'];
+			$jsonArray = json_decode(file_get_contents('php://input'), true);
+			$email = $jsonArray['email'];
 			$password = $jsonArray['password'];
 
-//			// validation rules for required fields
-//			$this->form_validation->set_rules('email', 'Email', 'required');
-//			$this->form_validation->set_rules('password', 'Password', 'required');
-
 			// validating required fields and passing into users model
-			if(!($email=="" or $password=="")) {
+			if (!($email == "" or $password == "")) {
 
 				/**
 				 * @var Response $response

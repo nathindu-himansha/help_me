@@ -1,9 +1,9 @@
-<?php include 'header.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Help Me | User Profile</title>
+	<title>Help Me | Add Question</title>
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
 		  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -23,7 +23,7 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
 </head>
 <body>
-
+<?php include 'header.php'; ?>
 <div class="mt-5" id="question-add-section">
 	<div class="container">
 		<div class="mb-5 ">
@@ -74,7 +74,7 @@
 
 
 		<div class="text-right">
-			<button id="add-question-btn" class="text-center btn btn-warning btn-m type= submit">
+			<button id="add-question-btn" class="text-center btn btn-warning btn-m text-white" type="submit">
 				Submit
 			</button>
 		</div>
@@ -83,9 +83,9 @@
 
 		</div>
 
-
 	</div>
-	<script>
+	<script lang="Javascript">
+
 		$.ajaxPrefilter(function (options, originalOptions, jqXHR) {
 			options.url = 'http://localhost/help_me/index.php' + options.url;
 		});
@@ -113,9 +113,8 @@
 					}
 				}
 			});
-			setTimeout(validateToken, 1000000);
+			setTimeout(validateToken, 300000);
 		}
-
 		validateToken();
 
 		const QuestionSubmitModel = Backbone.Model.extend({
@@ -136,7 +135,6 @@
 				"click #add-question-btn": "addQuestion"
 			},
 			addQuestion: function () {
-				console.log("booom")
 
 				const question_title = $('#question-title').val();
 				const question_body = $('#question-body').val();
@@ -152,8 +150,6 @@
 					let html = "<div class='alert alert-danger'> empty question cannot submit. please fill all the fields </div>";
 					element.insertAdjacentHTML('beforeend', html);
 				} else {
-
-
 					const self = this;
 					const token = window.localStorage.getItem('token');
 					questionSubmitModel.save(questionDetails, {
@@ -161,13 +157,9 @@
 						async: false,
 						contentType: 'application/json',
 						success: function (users, response) {
-							// after sucess forward into question-answer view(after page complted)
-
-							console.log("SUCCESS - questionSubmitModel-save()");
-							console.log(response);
+							window.location.href = "add_answer.php?question_id=" + response.data.question.question.id;
 						},
 						error: function (model, response) {
-							const responseData = JSON.parse(response.responseText);
 							let errorMsg = "";
 
 							switch (response.status) {
@@ -178,6 +170,7 @@
 									errorMsg = "PLEASE FILL ALL THE FIELDS";
 									break;
 								case 400:
+									const responseData = JSON.parse(response.responseText);
 									errorMsg = responseData.message;
 									break;
 								case 500:
@@ -189,19 +182,16 @@
 							}
 							document.getElementById('question-add-section').innerHTML = "";
 							const element = document.getElementById('question-add-section');
-							let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='index.php'> REDIRECT ME TO HOME</a>"+ "</div>";
+							let html = "<div class='alert alert-danger'>" + errorMsg + "<a href='index.php'> REDIRECT ME TO HOME</a>" + "</div>";
 							element.insertAdjacentHTML('beforeend', html);
-
-							console.log("ERROR - questionSubmitModel save() CODE: " + response.status + " STATUS: " + response.statusText);
-
-						});
+						}
+					});
 				}
-				}
-			});
+			}
+		});
 		const questionSubmitView = new QuestionSubmitView();
 
-
 	</script>
-
+	<?php include 'footer.php'; ?>co
 </body>
 </html>

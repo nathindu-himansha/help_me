@@ -28,7 +28,6 @@ class TagModel extends CI_Model
 		try {
 			log_message(INFO_STATUS, "TagModel - createTag(): function called ");
 
-
 			if ($this->checkTagIsExists($tag)) {
 				log_message(ERROR_STATUS, "TagModel - createTag(): already exits entered tag");
 				return new Response(ERROR_STATUS, "ENTERED TAG ALREADY EXISTS ", null);
@@ -41,7 +40,7 @@ class TagModel extends CI_Model
 				$tag_id = $this->db->insert_id();
 				$tag = $this->getTagById(intval($tag_id));
 
-				log_message(INFO_STATUS, "Tag: " . $tag->getTag(). " successfully added to the database");
+				log_message(INFO_STATUS, "Tag: " . $tag->getTag() . " successfully added to the database");
 				return new Response(SUCCESS_STATUS, "TAG INSERTED SUCCESSFULLY", array($tag));
 			}
 
@@ -112,11 +111,12 @@ class TagModel extends CI_Model
 	}
 
 
-	// function for check whether entered tag is exits or not
+
 
 	/**
 	 * @throws Exception
 	 */
+	// function for check whether entered tag is exits or not
 	public function checkTagIsExists($tag): bool
 	{
 		try {

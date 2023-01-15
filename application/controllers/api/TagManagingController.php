@@ -28,12 +28,11 @@ class TagManagingController extends RestController
 				if ($this->UserTokenModel->validateRetrievedToken($headerToken)) {
 
 					//capturing the request body data
-					$jsonArray = json_decode(file_get_contents('php://input'),true);
-					$enteredTag= $jsonArray['tag'];
-
+					$jsonArray = json_decode(file_get_contents('php://input'), true);
+					$enteredTag = $jsonArray['tag'];
 
 					// validating required fields and passing into tag model
-					if(!($enteredTag=="")) {
+					if (!($enteredTag == "")) {
 
 						/**
 						 * @var Response $response

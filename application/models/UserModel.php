@@ -55,8 +55,6 @@ class UserModel extends CI_Model
 		}
 	}
 
-
-
 	/**
 	 * @throws Exception
 	 */
@@ -213,7 +211,7 @@ class UserModel extends CI_Model
 					$retrievedQuestionsList = $this->QuestionModel->getQuestionsByUserId($userId)->getData();
 
 					$userProfileData = new UserProfileData($retrievedUser->row()->id, $retrievedUser->row()->first_name,
-						$retrievedUser->row()->last_name,$retrievedUser->row()->email, $retrievedQuestionsList, $retrievedAnswersList);
+						$retrievedUser->row()->last_name, $retrievedUser->row()->email, $retrievedQuestionsList, $retrievedAnswersList);
 
 					return new Response(SUCCESS_STATUS, "USER PROFILE DETAILS FOUND SUCCESSFULLY",
 						$userProfileData->toString());
@@ -258,7 +256,7 @@ class UserModel extends CI_Model
 
 					$retrievedUserAfterUpdate = $this->getUserByIdFromUserTable($userId);
 					$userProfileData = new User($retrievedUserAfterUpdate->row()->first_name, $retrievedUserAfterUpdate->row()->last_name,
-						$retrievedUserAfterUpdate->row()->email,"");
+						$retrievedUserAfterUpdate->row()->email, "");
 
 					return new Response(SUCCESS_STATUS, "USER DETAILS UPDATED SUCCESSFULLY",
 						$userProfileData->toString());

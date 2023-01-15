@@ -88,3 +88,4 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 const SUCCESS_STATUS = "SUCCESS";
 const ERROR_STATUS = "ERROR";
 const INFO_STATUS = "INFO";
+const SITE_BASE_URL = "http://localhost/help_me/index.php/";
